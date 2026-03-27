@@ -1,0 +1,21 @@
+{
+  "name": "virtual-room-platform",
+  "version": "1.0.0",
+  "description": "A production-ready Virtual Room Platform with E2EE and WebRTC.",
+  "scripts": {
+    "dev:gateway": "cd backend/api-gateway && npm run dev",
+    "dev:auth": "cd backend/auth-service && npm run dev",
+    "dev:room": "cd backend/room-service && npm run dev",
+    "dev:chat": "cd backend/chat-service && npm run dev",
+    "dev:realtime": "cd backend/realtime-service && npm run dev",
+    "dev:ai": "cd backend/ai-service && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:all": "concurrently \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:room\" \"npm run dev:chat\" \"npm run dev:realtime\" \"npm run dev:ai\" \"npm run dev:frontend\"",
+    "build:frontend": "cd frontend && npm run build",
+    "build:all": "cd backend/api-gateway && npm run build && cd ../auth-service && npm run build && cd ../room-service && npm run build && cd ../chat-service && npm run build && cd ../realtime-service && npm run build && cd ../ai-service && npm run build && cd ../../frontend && npm run build",
+    "install:all": "npm install && cd backend/api-gateway && npm install && cd ../auth-service && npm install && cd ../room-service && npm install && cd ../chat-service && npm install && cd ../realtime-service && npm install && cd ../ai-service && npm install && cd ../../frontend && npm install --legacy-peer-deps"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
