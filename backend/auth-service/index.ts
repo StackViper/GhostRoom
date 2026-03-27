@@ -53,7 +53,13 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
 
   res.status(201).json({ 
     message: 'User created successfully',
-    user: { id: data.user?.id, email, username } 
+    user: { 
+      id: data.user?.id, 
+      email, 
+      username,
+      full_name: fullName,
+      avatar_url: null 
+    } 
   });
 });
 
@@ -78,8 +84,20 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
 
   authLog(`SUCCESS: Login for ${email} - Generated Token: ${internalToken.substring(0, 10)}...`);
 
+  // Fetch profile data
+  const { data: profileData } = await supabase
+    .from('profiles')
+    .select('username, full_name, avatar_url')
+    .eq('id', data.user.id)
+    .single();
+
+  const mergedUser = {
+    ...data.user,
+    ...profileData
+  };
+
   res.json({ 
-    user: data.user,
+    user: mergedUser,
     session: data.session,
     internalToken
   });

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Shield, User, Mail, Lock, Ghost } from 'lucide-react';
 
 interface AuthFormProps {
   type: 'login' | 'signup';
@@ -22,57 +24,77 @@ export default function AuthForm({ type, onSubmit, isLoading = false }: AuthForm
   };
 
   return (
-    <div className="w-full p-8 text-white">
-      <h2 className="text-3xl font-bold text-center mb-8">
-        {type === 'signup' ? 'Create Account' : 'Welcome Back'}
-      </h2>
+    <div className="w-full glass-card p-10 shadow-4xl relative overflow-hidden group">
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-accent-emerald/10 blur-[80px] rounded-full" />
+      
+      <div className="relative z-10 flex flex-col items-center mb-12">
+        <div className="w-16 h-16 bg-accent-emerald/10 text-accent-emerald rounded-2xl flex items-center justify-center mb-6 border border-accent-emerald/20 shadow-xl group-hover:bg-accent-emerald group-hover:text-ghost-950 transition-all duration-700">
+            <Ghost size={32} strokeWidth={2.5} />
+        </div>
+        <h2 className="text-4xl font-black text-white text-center uppercase tracking-tighter italic">
+          {type === 'signup' ? 'Access Registry' : 'Neural Login'}
+        </h2>
+        <p className="text-slate-500 text-xs font-bold mt-2 uppercase tracking-[0.3em]">Secure Protocols Active</p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {type === 'signup' && (
           <div className="space-y-4">
-            <input 
-              type="text" 
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3"
-              placeholder="Username"
-              required
-            />
-            <input 
-              type="text" 
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3"
-              placeholder="Full Name"
-              required
-            />
+            <div className="relative group/input">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within/input:text-accent-emerald transition-colors" size={18} />
+                <input 
+                  type="text" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full bg-ghost-950 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-semibold focus:outline-none focus:border-accent-emerald/50 transition-all placeholder-slate-700"
+                  placeholder="CHAMBER ALIAS"
+                  required
+                />
+            </div>
+            <div className="relative group/input">
+                <Shield className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within/input:text-accent-emerald transition-colors" size={18} />
+                <input 
+                  type="text" 
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full bg-ghost-950 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-semibold focus:outline-none focus:border-accent-emerald/50 transition-all placeholder-slate-700"
+                  placeholder="FULL OPERATOR NAME"
+                  required
+                />
+            </div>
           </div>
         )}
 
-        <input 
-          type="email" 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3"
-          placeholder="Email Address"
-          required
-        />
+        <div className="relative group/input">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within/input:text-accent-emerald transition-colors" size={18} />
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-ghost-950 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-semibold focus:outline-none focus:border-accent-emerald/50 transition-all placeholder-slate-700"
+              placeholder="NEURAL ADDRESS"
+              required
+            />
+        </div>
 
-        <input 
-          type="password" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3"
-          placeholder="Password"
-          required
-        />
+        <div className="relative group/input">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within/input:text-accent-emerald transition-colors" size={18} />
+            <input 
+              type="password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-ghost-950 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-semibold focus:outline-none focus:border-accent-emerald/50 transition-all placeholder-slate-700"
+              placeholder="ACCESS CODE"
+              required
+            />
+        </div>
 
         <button 
           type="submit" 
           disabled={isLoading}
-          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl disabled:opacity-50"
+          className="w-full bg-accent-emerald hover:bg-white text-ghost-950 font-black uppercase tracking-[0.2em] py-5 rounded-2xl transition-all shadow-xl shadow-accent-emerald/20 disabled:opacity-20 active:scale-[0.98] mt-4"
         >
-          {isLoading ? 'Processing...' : (type === 'signup' ? 'Sign Up' : 'Log In')}
+          {isLoading ? 'Processing Neural Data...' : (type === 'signup' ? 'Initialize Clearance' : 'Authenticate')}
         </button>
       </form>
     </div>

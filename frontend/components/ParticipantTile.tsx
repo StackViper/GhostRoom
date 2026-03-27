@@ -19,7 +19,7 @@ const ParticipantTile: React.FC<ParticipantTileProps> = ({ stream, username, isL
   }, [stream]);
 
   return (
-    <div className={`relative ${isCompact ? 'aspect-video' : 'h-full w-full'} bg-gray-900 border border-gray-800 rounded-3xl overflow-hidden group`}>
+    <div className={`relative ${isCompact ? 'aspect-video' : 'h-full w-full'} glass-card overflow-hidden group shadow-2xl transition-all duration-700 hover:border-accent-emerald/30 interactive-accent`}>
       <video
         ref={videoRef}
         autoPlay
@@ -30,16 +30,16 @@ const ParticipantTile: React.FC<ParticipantTileProps> = ({ stream, username, isL
       
       {/* Name Overlay */}
       {!isCompact && (
-          <div className="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-gray-700/50">
-            <div className="w-2 h-2 bg-green-500 rounded-full" />
-            <span className="text-xs font-bold text-white tracking-wide">
-              {username} {isLocal && '(You)'}
+          <div className="absolute bottom-6 left-6 flex items-center gap-3 px-4 py-2 glass rounded-2xl border border-white/5 shadow-2xl">
+            <div className="w-2.5 h-2.5 bg-accent-emerald rounded-full animate-pulse-emerald shadow-lg shadow-accent-emerald/40" />
+            <span className="text-[10px] font-black text-white tracking-[0.2em] uppercase">
+              {username} {isLocal && ' (YOU)'}
             </span>
           </div>
       )}
 
       {isCompact && (
-          <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/60 rounded text-[8px] font-black uppercase text-white">
+          <div className="absolute bottom-3 left-3 px-2 py-1 glass rounded-md text-[8px] font-black uppercase tracking-widest text-slate-300">
               {username}
           </div>
       )}

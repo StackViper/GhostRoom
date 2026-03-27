@@ -7,7 +7,8 @@ import { BackgroundManager } from '../../services/BackgroundManager';
 import ParticipantTile from '../../components/ParticipantTile';
 import axios from 'axios';
 import { io } from 'socket.io-client';
-import { Shield, Users, Activity, Settings, Maximize2 } from 'lucide-react';
+import { Shield, Users, Activity, Settings, Maximize2, Ghost, PhoneOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function RoomPage() {
   const router = useRouter();
@@ -217,7 +218,7 @@ export default function RoomPage() {
                 /* Stage Layout */
                 <div className="h-full flex flex-col lg:flex-row gap-6">
                     {/* Large Pinned View */}
-                    <div className="flex-[3] bg-gray-950 border border-gray-800 rounded-3xl overflow-hidden relative group">
+                    <div className="flex-[3] bg-ghost-950 border border-white/5 rounded-4xl overflow-hidden relative group shadow-2xl">
                         {pinnedId === 'self' ? (
                             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-contain" />
                         ) : (
@@ -229,26 +230,35 @@ export default function RoomPage() {
                         )}
                         <button 
                           onClick={() => setPinnedId(null)}
-                          className="absolute top-6 right-6 p-3 bg-black/60 backdrop-blur-md rounded-xl text-white border border-gray-700 hover:bg-gray-800 transition-all opacity-0 group-hover:opacity-100"
+                          className="absolute top-6 right-6 p-4 glass rounded-2xl text-white hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100"
                         >
                             <Settings size={20} />
                         </button>
                     </div>
 
                     {/* Smaller Vertical Sidebar for others */}
-                    <div className="flex-1 flex flex-col gap-4 min-w-[240px] overflow-y-auto">
+                    <div className="flex-1 flex flex-col gap-4 min-w-[280px] overflow-y-auto custom-scrollbar pr-2">
                         {pinnedId !== 'self' && (
-                            <div className="cursor-pointer" onClick={() => setPinnedId('self')}>
-                                <div className="aspect-video bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden relative">
+                            <motion.div 
+                              whileHover={{ scale: 1.02 }}
+                              className="cursor-pointer" 
+                              onClick={() => setPinnedId('self')}
+                            >
+                                <div className="aspect-video bg-ghost-900 border border-white/5 rounded-3xl overflow-hidden relative shadow-lg">
                                     <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-                                    <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/60 rounded text-[8px] font-bold">You</div>
+                                    <div className="absolute bottom-3 left-3 px-2 py-1 glass rounded-md text-[10px] font-black uppercase tracking-widest">You</div>
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
                         {remotePeers.filter(p => p.socketId !== pinnedId).map(peer => (
-                            <div key={peer.socketId} className="cursor-pointer" onClick={() => setPinnedId(peer.socketId)}>
+                            <motion.div 
+                              key={peer.socketId} 
+                              whileHover={{ scale: 1.02 }}
+                              className="cursor-pointer" 
+                              onClick={() => setPinnedId(peer.socketId)}
+                            >
                                 <ParticipantTile stream={peer.stream} username={peer.username} isCompact />
-                            </div>
+                            </motion.div>
                         ))}
                     </div>
                 </div>
@@ -261,7 +271,7 @@ export default function RoomPage() {
                 }`}>
                   
                   {/* Local Video Tile */}
-                  <div className="relative aspect-video bg-gray-950 border border-gray-800 rounded-3xl overflow-hidden group cursor-pointer" onClick={() => setPinnedId('self')}>
+                  <div className="relative aspect-video bg-ghost-900 border border-white/5 rounded-4xl overflow-hidden group cursor-pointer shadow-xl interactive-accent" onClick={() => setPinnedId('self')}>
                       <video 
                         ref={videoRef} 
                         autoPlay 
@@ -271,12 +281,12 @@ export default function RoomPage() {
                       />
                       
                       {/* Local Info */}
-                      <div className="absolute top-4 left-4 flex gap-2">
-                        <div className="px-2 py-0.5 bg-black/60 backdrop-blur-md rounded-md border border-gray-700 text-[8px] font-black uppercase text-white tracking-widest leading-tight">SELF</div>
-                        <div className="px-2 py-0.5 bg-blue-600 rounded-md text-[8px] font-black uppercase text-white tracking-widest leading-tight">LIVE</div>
+                      <div className="absolute top-6 left-6 flex gap-2">
+                        <div className="px-3 py-1 glass rounded-lg text-[10px] font-black uppercase text-white tracking-[0.2em]">PRIVATE</div>
+                        <div className="px-3 py-1 bg-accent-emerald text-ghost-950 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-accent-emerald/20 animate-pulse-emerald">ACTIVE</div>
                       </div>
 
-                      <div className="absolute bottom-6 right-6 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute bottom-8 right-8 z-10 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
                         <VideoSettings onEffectChange={handleEffectChange} />
                       </div>
                   </div>
@@ -294,54 +304,76 @@ export default function RoomPage() {
             )}
           </div>
 
-          <div className="h-24 bg-gray-900 border border-gray-800 rounded-3xl flex items-center justify-between px-8">
-            <div className="flex items-center gap-6">
-                <ControlOption icon={<Users size={20} />} label="Participants" count={1 + remotePeers.length} />
-                
-                {/* Room Code Display & Copy */}
-                <div className="flex flex-col items-center gap-1 group">
-                    <div className={`p-3 rounded-xl transition-all flex items-center gap-2 ${copySuccess ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'}`}>
-                        <span className="text-[10px] font-mono font-bold tracking-tighter">
-                            {id?.toString().substring(0, 8)}...
-                        </span>
-                        <div className="flex gap-1 border-l border-gray-700 ml-2 pl-2">
-                            <button onClick={copyCode} title="Copy Code" className="hover:text-blue-400 transition-colors">
-                                <Maximize2 size={12} className="rotate-45" />
-                            </button>
-                            <button onClick={copyInvite} title="Copy Full Link" className="hover:text-blue-400 transition-colors">
-                                <Activity size={12} />
-                            </button>
+          {/* Floating Stealth HUD */}
+          <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-40">
+            <motion.div 
+                initial={{ y: 100 }}
+                animate={{ y: 0 }}
+                className="glass rounded-4xl flex items-center gap-1 p-2 border border-white/10 shadow-4xl"
+            >
+                <div className="flex items-center px-6 border-r border-white/10 gap-8">
+                    <ControlOption icon={<Users size={20} />} label="LIVE" count={1 + remotePeers.length} active />
+                    
+                    {/* Room Identity */}
+                    <div className="flex flex-col gap-0.5 min-w-[120px]">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Secure Chamber</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-black text-white tracking-widest uppercase italic">{room?.name || 'Loading...'}</span>
                         </div>
                     </div>
-                    <span className={`text-[9px] font-black uppercase tracking-tighter ${copySuccess ? 'text-green-500' : 'text-gray-600'}`}>
-                        {copySuccess ? 'Copied!' : 'Copy Code / Link'}
-                    </span>
                 </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-                <button 
-                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  className={`p-3 rounded-xl transition-all ${isSidebarOpen ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
-                >
-                    <Settings size={20} />
-                </button>
-                <button 
-                  onClick={() => router.push('/dashboard')}
-                  className="px-6 py-3 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-xl font-bold transition-all border border-red-600/20"
-                >
-                    Leave Room
-                </button>
-            </div>
+
+                <div className="flex items-center gap-2 px-4 border-r border-white/10">
+                    <button 
+                        onClick={copyCode}
+                        className={`p-4 rounded-3xl transition-all ${copySuccess ? 'bg-accent-emerald text-ghost-950' : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'}`}
+                        title="Copy Chamber Code"
+                    >
+                        <Shield size={20} />
+                    </button>
+                    <button 
+                        onClick={copyInvite}
+                        className={`p-4 rounded-3xl transition-all bg-white/5 text-slate-400 hover:text-white hover:bg-white/10`}
+                        title="Share Invite Link"
+                    >
+                        <Activity size={20} />
+                    </button>
+                    <button 
+                      onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                      className={`p-4 rounded-3xl transition-all ${isSidebarOpen ? 'bg-accent-cyan text-ghost-950' : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'}`}
+                      title="Toggle Neural Chat"
+                    >
+                        <Settings size={20} />
+                    </button>
+                </div>
+
+                <div className="px-4 pr-6">
+                    <button 
+                        onClick={() => router.push('/dashboard')}
+                        className="px-8 py-4 bg-accent-rose/10 hover:bg-accent-rose text-accent-rose hover:text-white rounded-3xl font-black uppercase tracking-widest transition-all text-xs border border-accent-rose/20"
+                    >
+                        LEAVE
+                    </button>
+                </div>
+            </motion.div>
           </div>
         </div>
 
         {/* Sidebar (Chat) */}
-        {isSidebarOpen && (
-          <div className="lg:col-span-4 h-full animate-in slide-in-from-right-10 duration-300">
-            <ChatView roomId={id as string} socket={socket} roomName="Main Chamber" />
-          </div>
-        )}
+        <AnimatePresence>
+            {isSidebarOpen && (
+            <motion.div 
+                initial={{ x: 300, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 300, opacity: 0 }}
+                className="lg:col-span-4 h-full"
+            >
+                <div className="glass-card h-full flex flex-col p-2 overflow-hidden">
+                    <ChatView roomId={id as string} socket={socket} roomName={room?.name || 'Main Chamber'} />
+                </div>
+            </motion.div>
+            )}
+        </AnimatePresence>
       </div>
     </Layout>
   );
@@ -349,11 +381,11 @@ export default function RoomPage() {
 
 function ControlOption({ icon, label, count, active }: any) {
     return (
-        <div className="flex flex-col items-center gap-1 group cursor-pointer">
-            <div className={`p-3 rounded-xl transition-all ${active ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-500 group-hover:text-white group-hover:bg-gray-700'}`}>
+        <div className="flex flex-col items-center gap-1 group cursor-pointer transition-all hover:scale-110">
+            <div className={`p-4 rounded-3xl transition-all ${active ? 'bg-accent-emerald/20 text-accent-emerald shadow-lg shadow-accent-emerald/10' : 'bg-white/5 text-slate-500 group-hover:text-white group-hover:bg-white/10'}`}>
                 {icon}
             </div>
-            <span className="text-[9px] font-black uppercase tracking-tighter text-gray-600">{label} {count && `(${count})`}</span>
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-600">{label} {count && `• ${count}`}</span>
         </div>
     )
 }
