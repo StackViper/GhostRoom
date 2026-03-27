@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Layout from '../../components/Layout';
 import axios from 'axios';
-import { Users, Search, ArrowRight } from 'lucide-react';
+import { Users, Search, ArrowRight, Shield, Link2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function JoinRoom() {
   const [roomId, setRoomId] = useState('');
@@ -11,25 +12,30 @@ export default function JoinRoom() {
     e.preventDefault();
     setLoading(true);
     try {
-      let finalRoomId = roomId;
+      let finalRoomId = roomId.trim();
       let finalToken = '';
 
-      // Smart Parsing: If user pasted a full link, extract components
-      if (roomId.includes('?token=')) {
-          const url = new URL(roomId);
+      // Smart Parsing: detect invite links, full URLs, or raw IDs
+      if (finalRoomId.includes('/join/')) {
+          // It's a direct invite link — extract token and use the invite flow
+          const token = finalRoomId.split('/join/').pop() || '';
+          window.location.href = `/join/${token}`;
+          return;
+      } else if (finalRoomId.includes('?token=')) {
+          const url = new URL(finalRoomId);
           finalRoomId = url.pathname.split('/').pop() || '';
           finalToken = url.searchParams.get('token') || '';
-      } else if (roomId.includes('/room/')) {
-          finalRoomId = roomId.split('/room/')[1].split('?')[0];
+      } else if (finalRoomId.includes('/room/')) {
+          finalRoomId = finalRoomId.split('/room/')[1].split('?')[0];
       }
 
-      await axios.post('/api/rooms/join', { 
+      await axios.post('http://localhost:4000/api/rooms/join', { 
           roomId: finalRoomId, 
           token: finalToken 
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('ghost_auth_token')}` }
       });
-      window.location.href = `/room/${finalRoomId}${finalToken ? `?token=${finalToken}` : ''}`;
+      window.location.href = `/room/${finalRoomId}`;
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to join room');
     } finally {
@@ -39,26 +45,36 @@ export default function JoinRoom() {
 
   return (
     <Layout>
-      <div className="max-w-xl mx-auto py-12 px-4">
-        <div className="text-center mb-10">
-            <div className="w-16 h-16 bg-purple-600/20 text-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <Users size={32} />
+      <div className="max-w-xl mx-auto py-16 px-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
+            <div className="w-20 h-20 bg-accent-cyan/10 text-accent-cyan rounded-3xl flex items-center justify-center mx-auto mb-8 border border-accent-cyan/20 shadow-xl">
+                <Link2 size={36} />
             </div>
-            <h1 className="text-3xl font-black text-white mb-3 uppercase tracking-tighter">Join Meeting</h1>
-            <p className="text-gray-400">Enter the Room ID shared by the owner to enter.</p>
-        </div>
+            <h1 className="text-4xl font-black text-white mb-3 uppercase tracking-tighter italic">Join Chamber</h1>
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.3em]">Paste an invite link or Room ID to enter</p>
+        </motion.div>
 
-        <form onSubmit={handleJoin} className="space-y-6 bg-gray-900 p-10 rounded-3xl border border-gray-800 shadow-2xl">
+        <motion.form 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          onSubmit={handleJoin} 
+          className="space-y-8 glass-card p-10"
+        >
           <div>
-            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 ml-1">Room ID / Invite Code</label>
-            <div className="relative">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
+            <label className="block text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] mb-4 ml-1">Invite Link / Room ID / Access Code</label>
+            <div className="relative group/input">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-700 group-focus-within/input:text-accent-emerald transition-colors" size={18} />
                 <input 
                   required
                   value={roomId}
                   onChange={e => setRoomId(e.target.value)}
-                  placeholder="Paste Room ID here..."
-                  className="w-full bg-gray-950 border border-gray-800 rounded-2xl pl-14 pr-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all placeholder-gray-700"
+                  placeholder="https://ghostroom.app/join/abc123... or paste Room ID"
+                  className="w-full bg-ghost-950 border border-white/10 rounded-2xl pl-14 pr-6 py-5 text-sm font-semibold text-white focus:outline-none focus:border-accent-emerald/50 transition-all placeholder-slate-700"
                 />
             </div>
           </div>
@@ -66,12 +82,12 @@ export default function JoinRoom() {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full py-4 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-2xl font-bold transition-all shadow-xl shadow-purple-500/20 flex items-center justify-center gap-2 group"
+            className="w-full py-5 bg-accent-emerald hover:bg-white text-ghost-950 rounded-2xl font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-accent-emerald/20 disabled:opacity-20 flex items-center justify-center gap-3 group active:scale-[0.98]"
           >
-            {loading ? 'Validating...' : 'Enter GhostRoom'}
-            {!loading && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
+            {loading ? 'Decrypting Access...' : 'Enter GhostRoom'}
+            {!loading && <ArrowRight size={18} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />}
           </button>
-        </form>
+        </motion.form>
       </div>
     </Layout>
   );

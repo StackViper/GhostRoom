@@ -28,7 +28,15 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
         localStorage.setItem('ghost_auth_token', internalToken);
         localStorage.setItem('user', JSON.stringify(user));
         onClose();
-        window.location.href = '/dashboard'; 
+        
+        // Check for pending invite link
+        const pendingInvite = localStorage.getItem('pending_invite');
+        if (pendingInvite) {
+          localStorage.removeItem('pending_invite');
+          window.location.href = `/join/${pendingInvite}`;
+        } else {
+          window.location.href = '/dashboard';
+        }
       } else {
         setMode('login');
       }

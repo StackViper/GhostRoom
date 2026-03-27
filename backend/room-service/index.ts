@@ -199,6 +199,24 @@ app.get('/api/rooms/:id', authenticate, async (req: any, res: Response) => {
   res.json(data);
 });
 
+// Lookup Room by Invite Token (for direct-join links)
+app.get('/api/rooms/invite-lookup/:token', authenticate, async (req: any, res: Response) => {
+  const inviteToken = req.params.token;
+  log(`INCOMING: Invite lookup for token: ${inviteToken}`);
+
+  const { data: room, error } = await supabase
+    .from('rooms')
+    .select('id, name, access_token, owner_id')
+    .eq('access_token', inviteToken)
+    .single();
+
+  if (error || !room) {
+    return res.status(404).json({ error: 'Invalid or expired invite link.' });
+  }
+
+  res.json({ roomId: room.id, roomName: room.name, accessToken: room.access_token });
+});
+
 // Health Check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', service: 'Room Service' });

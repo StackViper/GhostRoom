@@ -147,7 +147,7 @@ export default function RoomPage() {
 
   const copyInvite = () => {
     if (!room) return;
-    const inviteUrl = `${window.location.origin}/room/${id}?token=${room.access_token}`;
+    const inviteUrl = `${window.location.origin}/join/${room.access_token}`;
     navigator.clipboard.writeText(inviteUrl);
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
