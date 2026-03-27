@@ -1,6 +1,6 @@
 # GhostRoom 👻 — The Infinite Private Meeting Engine
 
-**GhostRoom** is a high-performance, privacy-first virtual collaboration platform. It combines real-time WebRTC video, end-to-end encrypted messaging, and browser-native AI to create a "zero-trust" meeting environment.
+**GhostRoom** is a high-performance, privacy-first virtual collaboration platform available on **Web & Mobile (iOS/Android)**. It combines real-time WebRTC video, end-to-end encrypted messaging, and browser-native AI to create a "zero-trust" meeting environment.
 
 ![GhostRoom Interface](file:///Users/rituraj/.gemini/antigravity/brain/e2e79941-e024-4d39-9b7e-22e885e921a2/ghostroom_favicon_1774589127962.png)
 
@@ -21,7 +21,8 @@ GhostRoom uses a **Decoupled Microservices Architecture** to ensure high availab
 
 ```mermaid
 graph TD
-    A[Frontend: Next.js] --> B[API Gateway]
+    A[Web Frontend: Next.js] --> B[API Gateway]
+    M[Mobile App: React Native / Expo] --> B
     
     subgraph Microservices
         B -->|Port 4001| C[Auth Service]
@@ -33,7 +34,7 @@ graph TD
     
     subgraph Persistence
         C & D -->|PostgreSQL| P[(Supabase DB)]
-        F -->|NoSQL| M[(MongoDB)]
+        F -->|NoSQL| MDB[(MongoDB)]
         E -->|Shared Memory| R[(Redis Adapter)]
     end
 ```
@@ -87,6 +88,40 @@ Uses **MediaPipe Selfie Segmentation** with a custom Canvas Compositing pipeline
 
 ---
 
+## 📱 Mobile App (React Native / Expo)
+
+GhostRoom ships with a **cross-platform mobile app** built with React Native (Expo Router), reusing the same backend microservices.
+
+### Tech Stack
+| Layer | Technology |
+|---|---|
+| Framework | React Native (Expo SDK 55) |
+| Navigation | Expo Router (file-based) |
+| State | React Context + AsyncStorage |
+| Realtime | Socket.IO Client |
+| Styling | StyleSheet (Obsidian/Emerald theme) |
+
+### Screens
+- **Auth** — Login/Signup with GhostRoom branding
+- **Dashboard** — Room list with pull-to-refresh
+- **Create** — Initialize new encrypted chambers
+- **Join** — Smart paste: accepts invite links or Room IDs
+- **Room** — Real-time encrypted chat with participant tracking
+- **Profile** — User avatar, info, and session disconnect
+- **Deep Link Join** — `ghostroom://join/{token}` auto-joins a room
+
+### Running the Mobile App
+```bash
+cd mobile
+npm install
+npx expo start
+```
+Scan the QR code with **Expo Go** (iOS/Android) or press `w` for web.
+
+> **Note**: Update `API_BASE_URL` in `mobile/constants/Colors.ts` with your Mac's LAN IP for device testing.
+
+---
+
 ## ⚙️ Quick Start (Developer Mode)
 
 ### Step 1: Install All Dependencies
@@ -112,9 +147,12 @@ Visit **`http://localhost:1000`** to enter the GhostRoom. 🚀
 ---
 
 ## 📈 Roadmap
+- [x] **Mobile App**: Cross-platform React Native app with Expo.
+- [x] **Direct Invite Links**: One-click join via `/join/{token}` deep links.
+- [ ] **WebRTC on Mobile**: Full video calling inside the mobile app.
 - [ ] **SFU Upgrade**: Transition from Mesh to SFU (Selective Forwarding Unit) for 50+ meetings.
 - [ ] **Recording Engine**: Local stream recording to E2EE storage.
-- [ ] **VR Support**: 3D meeting spaces using Three.js integration.
+- [ ] **Synchronized Media**: Watch movies & listen to music together in-room.
 
 ---
 
